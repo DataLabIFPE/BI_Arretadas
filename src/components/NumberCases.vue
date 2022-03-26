@@ -67,8 +67,8 @@
       ></v-combobox>
 
       <div class="buttom">
-        <v-btn @click="search()">Buscar</v-btn>
-        <v-btn @click="cleaner()">Limpar</v-btn>
+        <v-btn @click="search">Buscar</v-btn>
+        <v-btn @click="cleaner">Limpar</v-btn>
       </div>
       <br />
       <small>* Campos obrigatórios</small>
@@ -80,6 +80,7 @@
         <div class="bar-chart">
           <bar-chart
             label="Alertas"
+            :width="300" :height="300"
             :dados="alertsByDates"
             :key="alertsByDates.__ob__.dep.id"
           />
@@ -88,6 +89,7 @@
         <div class="doughnu-chart">
           <doughnut-chart
             label="Por Bairro"
+            :width="300" :height="300"
             :dados="alertsByDistricts"
             :key="alertsByDistricts.__ob__.dep.id"
           />
@@ -99,6 +101,7 @@
         <div class="bar-chart">
           <bar-chart
             label="Denúncias"
+            :width="300" :height="300"
             :dados="complaintsByDates"
             :key="complaintsByDates.__ob__.dep.id"
           />
@@ -107,6 +110,7 @@
         <div class="doughnu-chart">
           <doughnut-chart
             label="Por Bairro"
+            :width="300" :height="300"
             :dados="complaintsByDistricts"
             :key="complaintsByDistricts.__ob__.dep.id"
           />
@@ -128,8 +132,6 @@
 import Datepicker from "vuejs-datepicker";
 import { ptBR } from "vuejs-datepicker/dist/locale";
 import moment from "moment";
-import { authenticate } from "@/services/authentication";
-import { validate } from "@/services/validationToken";
 import BarChart from "./BarChart.vue";
 import DoughnutChart from "./DoughnutChart.vue";
 
@@ -145,9 +147,6 @@ export default {
       ptBR: ptBR,
       initialDate: "",
       finalDate: "",
-      token: "",
-      userToken: "",
-      validUserToken: "",
       selectedType: "",
       types: ["Alertas", "Denúncias"],
       selectedTypeComplaint: [],
@@ -176,13 +175,6 @@ export default {
     };
   },
 
-  mounted() {
-    this.userToken = sessionStorage.getItem("userToken");
-    this.token = sessionStorage.getItem("token");
-
-    if (!this.userToken) this.$router.replace("/login");
-  },
-
   methods: {
     customFormatterDate(date) {
       return moment(date).format("DD/MM/YYYY");
@@ -192,38 +184,7 @@ export default {
       return moment(date).format("DD/MM");
     },
 
-    async verifyTokenUser(token) {
-      await validate({
-        oldToken: token,
-      }).catch(() => this.$router.replace("/login"));
-    },
-
-    refreshToken() {
-      sessionStorage.removeItem("token");
-      this.authenticateUser();
-    },
-
-    async authenticateUser() {
-      await authenticate({
-        nickname: "Alberto",
-        password: "alberto123",
-      })
-        .then((response) => {
-          this.token = response.data.token;
-          this.$api.defaults.headers.common[
-            "Authorization"
-          ] = `Bearer ${this.token}`;
-          sessionStorage.setItem("token", `Bearer ${this.token}`);
-        })
-        .catch(() =>
-          this.errors.push(
-            "Erro ao tentar realizar autenticação do usuário. Atualize a página."
-          )
-        );
-    },
-
     logout() {
-      sessionStorage.removeItem("userToken");
       sessionStorage.removeItem("token");
       this.$router.replace("/login");
     },
@@ -237,7 +198,6 @@ export default {
           this.isLoadedAlert = true;
           this.isLoadedComplaint = false;
         })
-        .catch(() => this.refreshToken());
     },
 
     async getComplaints(date) {
@@ -254,58 +214,33 @@ export default {
           this.isLoadedComplaint = true;
           this.isLoadedAlert = false;
         })
-        .catch(() => this.refreshToken());
     },
 
     search() {
       this.errors = [];
 
-      if (!this.initialDate) {
-        this.errors.push("Favor preencher o campo Data Inicial!");
+      if (!this.initialDate || !this.finalDate || !this.selectedType) {
+        this.errors.push("Por favor, preencha os campos corretamentes!");
         return;
-      }
-
-      if (!this.finalDate) {
-        this.errors.push("Favor preencher o campo Data Final!");
+      } else if (this.selectedType === "Denúncias" && this.selectedTypeComplaint.length === 0){
+        this.errors.push("Por favor, escolha o Tipo de denúncia!");
         return;
-      }
-
-      if (!this.selectedType) {
-        this.errors.push("Favor escolher o Tipo de ocorrência!");
+      } else if (this.finalDate < this.initialDate) {
+        this.errors.push("Por favor, informe a data final maior que data inicial!");
         return;
-      }
+      } else {
 
-      if (
-        this.selectedType === "Denúncias" &&
-        this.selectedTypeComplaint.length === 0
-      ) {
-        this.errors.push("Favor escolher o Tipo de denúncia!");
-        return;
-      }
+        const dates = {
+          init: moment(this.initialDate).format("YYYY-MM-DD"),
+          final: moment(this.finalDate).format("YYYY-MM-DD"),
+        };
 
-      if (this.finalDate < this.initialDate) {
-        this.errors.push("Favor informar data final maior que data inicial!");
-        return;
-      }
-
-      if (this.errors.length === 0 && !this.token) {
-        this.authenticateUser();
-      }
-
-      this.userToken = sessionStorage.getItem("userToken");
-
-      !this.userToken ? this.logout() : this.verifyTokenUser(this.userToken);
-
-      const dates = {
-        init: moment(this.initialDate).format("YYYY-MM-DD"),
-        final: moment(this.finalDate).format("YYYY-MM-DD"),
-      };
-
-      this.selectedType === "Alertas"
-        ? this.getAlerts(dates)
-        : this.getComplaints(dates);
+        this.selectedType === "Alertas"
+          ? this.getAlerts(dates)
+          : this.getComplaints(dates);
+        }
     },
-
+    
     cleaner() {
       this.errors = [];
       this.initialDate = "";
