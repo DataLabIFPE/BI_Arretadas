@@ -16,7 +16,8 @@
     "vue-chartjs": "^3.5.1",
     "vue-router": "^3.5.2",
     "vuejs-datepicker": "^1.6.2",
-    "vuetify": "^2.4.11"
+    "vuetify": "^2.4.11",
+    "x5-gmaps": "^0.6.0"
   },
   "devDependencies": {
     "@mdi/font": "^6.4.95",

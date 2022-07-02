@@ -13,9 +13,9 @@
             <div class="flex items-center">
                 <strong class="date"> Período: </strong>
                 <div class="datepicker">
-                    <datepicker :calendar-button="true" :clear-button="true" :full-month-name="true"
-                        placeholder="Data Inicial*" v-model="initialDate" :format="customFormatterDate" :language="ptBR"
-                        min="0">
+                    <datepicker :calendar-button="true" calendar-button-icon="mdCalendar" calendar-button-icon-content="📅" :clear-button="true" :full-month-name="true"
+                    placeholder="Data Inicial*" v-model="initialDate" :format="customFormatterDate" :language="ptBR"
+                    min="0">
                     </datepicker>
                 </div>
             </div>
@@ -23,9 +23,9 @@
             <div class="flex items-center">
                 <strong>Até</strong>
                 <div class="datepicker">
-                    <datepicker :calendar-button="true" :clear-button="true" :full-month-name="true"
-                        placeholder="Data Final*" v-model="finalDate" :format="customFormatterDate" :language="ptBR"
-                        min="0">
+                    <datepicker :calendar-button="true" calendar-button-icon="mdCalendar" calendar-button-icon-content="📅" :clear-button="true" :full-month-name="true"
+                    placeholder="Data Final*" v-model="finalDate" :format="customFormatterDate" :language="ptBR"
+                    min="0">
                     </datepicker>
                 </div>
             </div>
@@ -54,7 +54,7 @@ import moment from "moment";
 
 export default {
     name: "Form",
-
+    
     components: {
         Datepicker
     },

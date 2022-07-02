@@ -47,6 +47,7 @@
             :key="complaintsByDistricts.__ob__.dep.id"
           />
         </div>
+        <HeatMap></HeatMap>
       </div>
     </div>
   </v-container>
@@ -56,6 +57,7 @@
 import BarChart from "./BarChart.vue";
 import DoughnutChart from "./DoughnutChart.vue";
 import Form from './Form.vue';
+import HeatMap from './map.vue';
 
 export default {
   name: "numberCases",
@@ -63,7 +65,8 @@ export default {
   components: {
     BarChart,
     DoughnutChart,
-    Form
+    Form,
+    HeatMap
   },
 
   data() {

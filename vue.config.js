@@ -3,3 +3,4 @@
 //         ? '/vue-chart-example/'
 //         : '/'
 // }
+module.exports = { transpileDependencies: ['x5-gmaps'] }
